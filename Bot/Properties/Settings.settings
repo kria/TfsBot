@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DevCore.TfsBot.Bot.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="IrcServer" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">irc.freenode.net</Value>
+    </Setting>
+    <Setting Name="IrcChannel" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">#tfsbottest</Value>
+    </Setting>
+    <Setting Name="IrcNick" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tfsbot</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

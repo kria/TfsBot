@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TfsSubscriber", "TfsSubscriber\TfsSubscriber.csproj", "{BF771129-BF60-4503-B99B-46F23F4E7600}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot", "Bot\Bot.csproj", "{62AA50A7-96BF-4748-8C45-B40374945FF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4033AFFA-BEA3-4BDF-84EA-59A23360FD36} = {4033AFFA-BEA3-4BDF-84EA-59A23360FD36}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotServiceTestClient", "BotServiceTestClient\BotServiceTestClient.csproj", "{4D276F8E-2AEA-420D-956F-5C2B43C197EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotServiceContract", "BotServiceContract\BotServiceContract.csproj", "{EBFFDADB-5492-4FF4-A311-3859D4E6D6BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatSharp", "lib\ChatSharp\ChatSharp\ChatSharp.csproj", "{4033AFFA-BEA3-4BDF-84EA-59A23360FD36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF771129-BF60-4503-B99B-46F23F4E7600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF771129-BF60-4503-B99B-46F23F4E7600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF771129-BF60-4503-B99B-46F23F4E7600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF771129-BF60-4503-B99B-46F23F4E7600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62AA50A7-96BF-4748-8C45-B40374945FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62AA50A7-96BF-4748-8C45-B40374945FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62AA50A7-96BF-4748-8C45-B40374945FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62AA50A7-96BF-4748-8C45-B40374945FF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D276F8E-2AEA-420D-956F-5C2B43C197EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D276F8E-2AEA-420D-956F-5C2B43C197EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D276F8E-2AEA-420D-956F-5C2B43C197EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D276F8E-2AEA-420D-956F-5C2B43C197EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBFFDADB-5492-4FF4-A311-3859D4E6D6BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBFFDADB-5492-4FF4-A311-3859D4E6D6BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBFFDADB-5492-4FF4-A311-3859D4E6D6BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBFFDADB-5492-4FF4-A311-3859D4E6D6BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4033AFFA-BEA3-4BDF-84EA-59A23360FD36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4033AFFA-BEA3-4BDF-84EA-59A23360FD36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4033AFFA-BEA3-4BDF-84EA-59A23360FD36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4033AFFA-BEA3-4BDF-84EA-59A23360FD36}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
