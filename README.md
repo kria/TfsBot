@@ -20,7 +20,7 @@ When the bot starts up it joins your channel and lurks there until a push occurs
 
 ```
 <tfsbot> push by kria to TestCompany/BotTest
-<tfsbot> commit 6cd546 2014-03-22 23:29:10 Kristian Adrup <subsurfer@gmail.com> Testing the bot
+<tfsbot> [master] commit 6cd546 2014-03-22 23:29:10 Kristian Adrup <subsurfer@gmail.com> Testing the bot
 <tfsbot> commit 4d2441 2014-03-22 23:25:12 Kristian Adrup <subsurfer@gmail.com> Helpful note
 ```
 
