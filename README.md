@@ -24,13 +24,16 @@ When the bot starts up it joins your channel and lurks there until a push occurs
 <tfsbot> commit 4d2441 2014-03-22 23:25:12 Kristian Adrup <subsurfer@gmail.com> Helpful note
 ```
 
+## Branches
+
+* master - targets TFS 2013 Update 2
+* tfs2013.0 - targets original TFS 2013 release
+
 ## License
 
 Copyright (C) 2014 Kristian Adrup
 
-TfsBot is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See included file [COPYING][2] for details.
-
-[2]: https://github.com/kria/TfsBot/blob/master/COPYING
+TfsBot is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See included file [COPYING](COPYING) for details.
 
 
 
