@@ -63,7 +63,7 @@ namespace DevCore.TfsBot.TfsSubscriber
                     {
                         string repoName = pushNotification.RepositoryName;
                         string projectName = commonService.GetProject(requestContext, pushNotification.TeamProjectUri).Name;
-                        string userName = pushNotification.AutenticatedUserName.Replace(DOMAIN_PREFIX, "");
+                        string userName = pushNotification.AuthenticatedUserName.Replace(DOMAIN_PREFIX, "");
 
                         var lines = new List<string>();
 
