@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.ServiceModel;
 using DevCore.TfsBot.BotServiceContract;
+using System.Diagnostics;
 
 namespace DevCore.TfsBot.TfsSubscriber
 {
@@ -44,17 +45,25 @@ namespace DevCore.TfsBot.TfsSubscriber
             get { return SubscriberPriority.Normal; }
         }
 
+        public Type[] SubscribedTypes()
+        {
+            return new Type[1] { typeof(PushNotification) };
+        }
+
         public EventNotificationStatus ProcessEvent(TeamFoundationRequestContext requestContext, NotificationType notificationType,
             object notificationEventArgs, out int statusCode, out string statusMessage, out Microsoft.TeamFoundation.Common.ExceptionPropertyCollection properties)
         {
             statusCode = 0;
             statusMessage = string.Empty;
             properties = null;
-           
+
             try
             {
                 if (notificationType == NotificationType.Notification && notificationEventArgs is PushNotification)
                 {
+                    Stopwatch timer = new Stopwatch();
+                    timer.Start();
+
                     PushNotification pushNotification = notificationEventArgs as PushNotification;
                     var repositoryService = requestContext.GetService<TeamFoundationGitRepositoryService>();
                     var commonService = requestContext.GetService<CommonStructureService>();
@@ -66,41 +75,58 @@ namespace DevCore.TfsBot.TfsSubscriber
                         string userName = pushNotification.AuthenticatedUserName.Replace(DOMAIN_PREFIX, "");
 
                         var lines = new List<string>();
-
-                        lines.Add(String.Format("push by {0} to {1}/{2}", userName, projectName, repoName));
+                        
+                        string pushText = pushNotification.IsForceRequired(requestContext, repository) ? "FORCE push" : "push";
+                        lines.Add(String.Format("{0} by {1} to {2}/{3}", pushText, userName, projectName, repoName));
 
                         // Display new commits
                         foreach (byte[] commitId in pushNotification.IncludedCommits)
                         {
                             TfsGitCommit gitCommit = (TfsGitCommit)repository.LookupObject(requestContext, commitId);
-                            string line = CommitToString(gitCommit, "commit", pushNotification, requestContext);
+                            string line = CommitToString(requestContext, gitCommit, "commit", pushNotification);
                             lines.Add(line);
                         }
 
-                        // Display updates that are not new commits
-                        var objIds = pushNotification.RefUpdateResults.Where(r => r.Succeeded).Select(r => r.NewObjectId).Distinct();
-                        foreach (byte[] objId in objIds)
+                        // Display ref updates that are not new commits
+                        var refUpdateResultGroups = pushNotification.RefUpdateResults
+                            .Where(r => r.Succeeded)
+                            .GroupBy(r => r.NewObjectId, (key, items) => new { NewObjectId = key, RefUpdateResults = items }, new ByteArrayComparer());
+
+                        foreach (var refUpdateResultGroup in refUpdateResultGroups)
                         {
-                            bool isIncludedCommit = pushNotification.IncludedCommits.Any(r => r.SequenceEqual(objId));
+                            byte[] newObjectId = refUpdateResultGroup.NewObjectId;
+                            bool isIncludedCommit = pushNotification.IncludedCommits.Any(r => r.SequenceEqual(newObjectId));
                             if (isIncludedCommit) continue;
-                            
-                            TfsGitObject gitObject = repository.LookupObject(requestContext, objId);
+
                             string line = null;
-                            if (gitObject.ObjectType == TfsGitObjectType.Commit)
+
+                            if (newObjectId.IsZero())
                             {
-                                line = CommitToString((TfsGitCommit)gitObject, "->", pushNotification, requestContext);
+                                line = String.Format("{0} deleted", RefsToString(refUpdateResultGroup.RefUpdateResults));
                             }
                             else
                             {
-                                var gitRefs = pushNotification.RefUpdateResults.Where(r => r.Succeeded && r.NewObjectId.SequenceEqual(objId)).ToList();
-                                line = String.Format("{0} -> {1} {2}", RefsToString(gitRefs), gitObject.ObjectType, Hex(objId));
+                                TfsGitObject gitObject = repository.LookupObject(requestContext, newObjectId);
+
+                                if (gitObject.ObjectType == TfsGitObjectType.Commit)
+                                {
+                                    line = CommitToString(requestContext, (TfsGitCommit)gitObject, "->", pushNotification, refUpdateResultGroup.RefUpdateResults);
+                                }
+                                else
+                                {
+                                    line = String.Format("{0} -> {1} {2}", RefsToString(refUpdateResultGroup.RefUpdateResults), gitObject.ObjectType, newObjectId.ToHexString());
+                                }
                             }
+
                             lines.Add(line);
                         }
 
                         //Log(lines);
                         Task.Run(() => SendToBot(lines));
                     }
+
+                    timer.Stop();
+                    //Log("Time spent in ProcessEvent: " + timer.Elapsed);
                 }
             }
             catch (Exception ex)
@@ -112,44 +138,37 @@ namespace DevCore.TfsBot.TfsSubscriber
             return EventNotificationStatus.ActionPermitted;
         }
 
-        private string RefsToString(IList<TfsGitRefUpdateResult> gitRefs)
+        private string RefsToString(IEnumerable<TfsGitRefUpdateResult> refUpdateResults)
         {
-            if (gitRefs.Count == 0) return null;
+            if (refUpdateResults.Count() == 0) return null;
             StringBuilder sb = new StringBuilder();
-            foreach(var gitRef in gitRefs) {
-                sb.AppendFormat("[{0}]", gitRef.Name.Replace("refs/heads/", "").Replace("refs/tags/",""));
+            foreach(var gitRef in refUpdateResults) {
+                sb.Append('[');
+                if (gitRef.Name.StartsWith("refs/heads/") && gitRef.OldObjectId.IsZero())
+                    sb.Append('+');
+                sb.AppendFormat("{0}]", gitRef.Name.Replace("refs/heads/", "").Replace("refs/tags/",""));
             }
             return sb.ToString();
-
         }
 
-        private string CommitToString(TfsGitCommit gitCommit, string action, PushNotification pushNotification, TeamFoundationRequestContext requestContext)
+        private string CommitToString(TeamFoundationRequestContext requestContext, TfsGitCommit gitCommit, string action, PushNotification pushNotification, 
+            IEnumerable<TfsGitRefUpdateResult> gitRefs = null)
         {
-            var gitRefs = pushNotification.RefUpdateResults.Where(r => r.Succeeded && r.NewObjectId.SequenceEqual(gitCommit.ObjectId)).ToList();
+            if (gitRefs == null)
+                gitRefs = pushNotification.RefUpdateResults.Where(r => r.Succeeded && r.NewObjectId.SequenceEqual(gitCommit.ObjectId));
 
-            string hash = Hex(gitCommit.ObjectId);
             DateTime authorTime = gitCommit.GetLocalAuthorTime(requestContext);
             string authorName = gitCommit.GetAuthor(requestContext);
             string comment = gitCommit.GetComment(requestContext);
             StringBuilder sb = new StringBuilder();
-            if (gitRefs.Count > 0) sb.AppendFormat("{0} ", RefsToString(gitRefs));
-            sb.AppendFormat("{0} {1} {2} {3} {4}", action, hash.Substring(0, 6), authorTime.ToString(), authorName,
-                Truncate(comment, COMMENT_MAX_LENGTH));
+            if (gitRefs.Count() > 0) sb.AppendFormat("{0} ", RefsToString(gitRefs));
+            sb.AppendFormat("{0} {1} {2} {3} {4}", action, gitCommit.ObjectId.ToShortHexString(), authorTime.ToString(), authorName,
+                comment.Truncate(COMMENT_MAX_LENGTH));
 
             return sb.ToString();
         }
 
-        private string Hex(byte[] buffer)
-        {
-            return BitConverter.ToString(buffer).Replace("-", "").ToLower();
-        }
-
-        public Type[] SubscribedTypes()
-        {
-            return new Type[1] { typeof(PushNotification) };
-        }
-
-        private void SendToBot(IList<String> lines)
+        private void SendToBot(IEnumerable<string> lines)
         {
             try
             {
@@ -169,27 +188,13 @@ namespace DevCore.TfsBot.TfsSubscriber
             }
         }
 
-        private string Truncate(string text, int len)
-        {
-            text = text.TrimEnd(Environment.NewLine.ToCharArray());
-            int pos = text.IndexOf('\n');
-            if (pos > 0 && pos <= len)
-                return text.Substring(0, pos);
-            if (text.Length <= len) 
-                return text;
-            pos = text.LastIndexOf(' ', len);
-            if (pos == -1) pos = len;
-            
-            return text.Substring(0, pos) + "...";
-        }
-
-        private void Log(IEnumerable<String> lines)
+        private void Log(IEnumerable<string> lines)
         {
             using (StreamWriter sw = File.AppendText(LOGFILE))
             {
                 foreach (string line in lines)
                 {
-                    sw.WriteLine(line);
+                    sw.WriteLine("[{0}] {1}", DateTime.Now, line);
                 }
             }
         }
@@ -197,5 +202,9 @@ namespace DevCore.TfsBot.TfsSubscriber
         {
             Log(new[] { line });
         }
+
+        
     }
+
+        
 }
