@@ -30,18 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.TeamFoundation.Common, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.TeamFoundation.Framework.Server">
-      <HintPath>..\lib\Microsoft.TeamFoundation.Framework.Server.dll</HintPath>
+    <Reference Include="DevCore.TfsNotificationRelay">
+      <HintPath>..\lib\DevCore.TfsNotificationRelay.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.TeamFoundation.Git.Server">
-      <HintPath>..\lib\Microsoft.TeamFoundation.Git.Server.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.TeamFoundation.Server.Core">
-      <HintPath>..\lib\Microsoft.TeamFoundation.Server.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.Services.WebApi, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -51,11 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ByteArrayComparer.cs" />
-    <Compile Include="NotificationSubscriber.cs" />
+    <Compile Include="IrcNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TfsHelper.cs" />
-    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BotServiceContract\BotServiceContract.csproj">

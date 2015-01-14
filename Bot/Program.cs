@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DevCore.TfsBot.BotServiceContract;
+using System.Windows.Forms;
 
 namespace DevCore.TfsBot.Bot
 {
@@ -46,7 +47,7 @@ namespace DevCore.TfsBot.Bot
             {
                 host.AddServiceEndpoint(typeof(IBotService), new NetNamedPipeBinding(), "BotService");
                 host.Open();
-                Console.WriteLine("TfsBot {0} started...", Assembly.GetExecutingAssembly().GetName().Version);
+                Console.WriteLine("TfsBot {0} started...", Application.ProductVersion);
                 Console.WriteLine("Press <Enter> to stop the bot.");
                 Console.ReadLine();
 
